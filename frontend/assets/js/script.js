@@ -1,13 +1,13 @@
 // Funções auxiliares de notificação
 function showError(msg) {
   const m = document.getElementById('mensagem');
-  m.className = 'erro';      // aplica o estilo de erro
+  m.className = 'erro';
   m.innerText = msg;
 }
 
 function showSuccess(msg) {
   const m = document.getElementById('mensagem');
-  m.className = 'sucesso';   // aplica o estilo de sucesso
+  m.className = 'sucesso';
   m.innerText = msg;
 }
 
@@ -21,7 +21,7 @@ function fazerLogin() {
     return showError('Por favor, selecione seu cargo.');
   }
 
-  fetch('http://127.0.0.1:5000/login', {
+  fetch('/api/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password, cargo })
@@ -63,18 +63,14 @@ if (document.getElementById('conteudo')) {
     document.getElementById('cargo-info').innerText   = `Cargo: ${cargo}`;
     document.getElementById('last-login').innerText  = `Último login: ${lastLogin}`;
 
-    // Carrega mensagem protegida (apenas para exemplo)
-    fetch('http://127.0.0.1:5000/protegido', {
+    // Chama a rota protegida do dashboard
+    fetch('/api/dashboard', {
       headers: { 'Authorization': 'Bearer ' + token }
     })
-      .then(res => res.json())
-      .then(data => {
-        // data.msg já está exibido acima como welcome-msg, então opcional aqui
-      })
       .catch(() => { /* ignore */ });
 
     // Estatísticas de usuários
-    fetch('http://127.0.0.1:5000/usuarios', {
+    fetch('/api/usuarios', {
       headers: { 'Authorization': 'Bearer ' + token }
     })
       .then(res => res.json())
@@ -86,8 +82,8 @@ if (document.getElementById('conteudo')) {
           else if (c.includes('gerente')) gerente++;
           else funcionario++;
         });
-        document.getElementById('stats-admin').innerText     = admin;
-        document.getElementById('stats-gerente').innerText   = gerente;
+        document.getElementById('stats-admin').innerText       = admin;
+        document.getElementById('stats-gerente').innerText     = gerente;
         document.getElementById('stats-funcionario').innerText = funcionario;
       })
       .catch(() => { /* ignore */ });
@@ -110,7 +106,7 @@ function salvarRecurso() {
   const descricao = document.getElementById('descricao')?.value;
   const token     = localStorage.getItem('token');
 
-  fetch('http://127.0.0.1:5000/recursos', {
+  fetch('/api/recursos', {
     method: 'POST',
     headers: {
       'Content-Type':  'application/json',
@@ -120,17 +116,17 @@ function salvarRecurso() {
   })
     .then(res => res.json())
     .then(data => {
-      alert(data.msg || 'Erro ao adicionar recurso');
+      showSuccess(data.msg || 'Recurso adicionado com sucesso!');
       carregarRecursos();
       atualizarResumoRecursos();
     })
-    .catch(() => alert('Erro ao conectar com o servidor'));
+    .catch(() => showError('Erro ao conectar com o servidor'));
 }
 
 function carregarRecursos() {
   const token = localStorage.getItem('token');
 
-  fetch('http://127.0.0.1:5000/recursos', {
+  fetch('/api/recursos', {
     headers: { 'Authorization': 'Bearer ' + token }
   })
     .then(res => res.json())
@@ -154,7 +150,7 @@ function carregarRecursos() {
 function atualizarResumoRecursos() {
   const token = localStorage.getItem('token');
 
-  fetch('http://127.0.0.1:5000/recursos', {
+  fetch('/api/recursos', {
     headers: { 'Authorization': 'Bearer ' + token }
   })
     .then(res => res.json())
@@ -192,12 +188,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const cargo    = localStorage.getItem('cargo');
   const btnAdmin = document.getElementById('btn-admin');
 
-  // Mostra o botão Administração só para admin
   if (btnAdmin && cargo === 'administrador') {
     btnAdmin.style.display = 'inline-block';
   }
 
-  // Se estivermos na página de recursos, injeta botões de editar/excluir
   if (document.getElementById('lista-recursos')) {
     carregarRecursos();
     carregarRecursosComBotoes();
@@ -209,7 +203,7 @@ function carregarRecursosComBotoes() {
   if (cargo !== 'administrador') return;
 
   const token = localStorage.getItem('token');
-  fetch('http://127.0.0.1:5000/recursos', {
+  fetch('/api/recursos', {
     headers: { 'Authorization': 'Bearer ' + token }
   })
     .then(res => res.json())
@@ -221,7 +215,6 @@ function carregarRecursosComBotoes() {
         const li = document.createElement('li');
         li.textContent = `${r.nome} — ${r.tipo} — ${r.descricao}`;
 
-        // Botões de editar/excluir
         const btnE = document.createElement('button');
         btnE.innerText = 'Editar';
         btnE.onclick = () => editarRecurso(r.id);
@@ -246,7 +239,7 @@ function editarRecurso(id) {
   if (novaDesc === null) return;
 
   const token = localStorage.getItem('token');
-  fetch(`http://127.0.0.1:5000/recursos/${id}`, {
+  fetch(`/api/recursos/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type':  'application/json',
@@ -256,11 +249,11 @@ function editarRecurso(id) {
   })
     .then(res => res.json())
     .then(data => {
-      alert(data.msg || "Recurso atualizado com sucesso!");
+      showSuccess(data.msg || "Recurso atualizado com sucesso!");
       carregarRecursosComBotoes();
       atualizarResumoRecursos();
     })
-    .catch(() => alert("Erro ao atualizar recurso."));
+    .catch(() => showError("Erro ao atualizar recurso."));
 }
 
 // ===================== EXCLUIR RECURSO =====================
@@ -268,15 +261,15 @@ function excluirRecurso(id) {
   if (!confirm("Tem certeza que deseja excluir este recurso?")) return;
 
   const token = localStorage.getItem('token');
-  fetch(`http://127.0.0.1:5000/recursos/${id}`, {
+  fetch(`/api/recursos/${id}`, {
     method: 'DELETE',
     headers: { 'Authorization': 'Bearer ' + token }
   })
     .then(res => res.json())
     .then(data => {
-      alert(data.msg || "Recurso excluído com sucesso!");
+      showSuccess(data.msg || "Recurso excluído com sucesso!");
       carregarRecursosComBotoes();
       atualizarResumoRecursos();
     })
-    .catch(() => alert("Erro ao excluir recurso."));
+    .catch(() => showError("Erro ao excluir recurso."));
 }
