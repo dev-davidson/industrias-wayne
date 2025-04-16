@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Admin - Indústrias Wayne</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Reuse a mesma top-bar -->
+  <div class="top-bar">
+    <img src="assets/img/logo-wayne.jpg" class="logo" alt="Logo">
+    <div class="top-buttons">
+      <button onclick="window.location.href='index.html'">Dashboard</button>
+      <button onclick="window.location.href='recursos.html'">Recursos</button>
+      <button onclick="fazerLogout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="recursos-container">
+    <h1>Painel de Administração</h1>
+    <div class="container">
+      <div class="box">
+        <h2>Adicionar / Editar / Excluir Recursos</h2>
+        <!-- Aqui você reaproveita os mesmos inputs e funções salvarRecurso(), editarRecurso(), excluirRecurso() -->
+        <input id="nome" placeholder="Nome">
+        <input id="tipo" placeholder="Tipo">
+        <textarea id="descricao" placeholder="Descrição"></textarea>
+        <button onclick="salvarRecurso()">Salvar</button><br><br>
+        <!-- Para editar/excluir, você pode listar com botões como já vimos -->
+        <ul id="lista-recursos"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>

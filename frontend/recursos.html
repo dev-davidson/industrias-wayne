@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestão de Recursos - Indústrias Wayne</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Barra superior fixa -->
+  <div class="top-bar">
+    <img src="assets/img/logo-wayne.jpg" class="logo" alt="Logo">
+    <div class="top-buttons">
+      <button onclick="window.location.href='index.html'">Dashboard</button>
+      <button id="btn-admin" style="display:none;" onclick="window.location.href='admin.html'">
+        Administração
+      </button>
+      <button onclick="fazerLogout()">Sair</button>
+    </div>
+  </div>
+  
+
+  <div class="recursos-container">
+    <h1>Gestão de Recursos</h1>
+
+    <div class="container">
+      <!-- Coluna 1: Formulário de adicionar/editar recurso -->
+      <div class="box">
+        <h2 id="form-titulo">Adicionar Novo Recurso</h2>
+        <input type="hidden" id="recurso-id">
+        <input type="text" id="nome" placeholder="Nome do recurso">
+        <input type="text" id="tipo" placeholder="Tipo (Equipamento, Veículo, Segurança)">
+        <textarea id="descricao" placeholder="Descrição do recurso"></textarea>
+        <button onclick="salvarRecurso()">Salvar</button>
+      </div>
+
+      <!-- Coluna 2: Lista de recursos -->
+      <div class="box">
+        <h2>Lista de Recursos</h2>
+        <ul id="lista-recursos"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>

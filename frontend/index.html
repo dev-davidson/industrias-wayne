@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Indústrias Wayne</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <span id="usuario-logado">Usuário: </span>
+    <img src="assets/img/logo-wayne.jpg" alt="Logo Indústrias Wayne" class="logo">
+    <div class="top-buttons">
+      <button onclick="window.location.href='recursos.html'">Recursos</button>
+      <button onclick="fazerLogout()">Sair</button>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="dashboard-container">
+    <h1>Dashboard Indústrias Wayne</h1>
+
+    <!-- Mensagem de boas‑vindas e informações do usuário -->
+    <div id="conteudo" class="conteudo-box">
+      <p id="welcome-msg"></p>
+      <p id="cargo-info"></p>
+      <p id="last-login"></p>
+    </div>
+
+    <!-- Cartões resumo de recursos -->
+    <div class="resumo-grid">
+      <div class="resumo-item">
+        <i class="fas fa-shield-alt"></i>
+        <p>Segurança</p>
+        <strong id="seguranca-count">0</strong>
+      </div>
+      <div class="resumo-item">
+        <i class="fas fa-car"></i>
+        <p>Veículos</p>
+        <strong id="veiculos-count">0</strong>
+      </div>
+      <div class="resumo-item">
+        <i class="fas fa-toolbox"></i>
+        <p>Equipamentos</p>
+        <strong id="equipamentos-count">0</strong>
+      </div>
+      <div class="resumo-item">
+        <i class="fas fa-database"></i>
+        <p>Total</p>
+        <strong id="total-count">0</strong>
+      </div>
+    </div>
+
+    <!-- Estatísticas de Usuários -->
+    <div class="ultimos-recursos">
+      <h2>Estatísticas de Usuários</h2>
+      <ul id="stats-list" class="stats-list">
+        <li>Administradores: <strong id="stats-admin">0</strong></li>
+        <li>Gerentes:       <strong id="stats-gerente">0</strong></li>
+        <li>Funcionários:   <strong id="stats-funcionario">0</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Últimos Recursos Adicionados -->
+  <div class="ultimos-recursos">
+    <h2>Últimos Recursos Adicionados</h2>
+    <ul id="lista-ultimos"></ul>
+  </div>
+
+  <!-- JS principal -->
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
+
