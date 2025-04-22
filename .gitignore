@@ -1,0 +1,10 @@
+# Bytecode e caches
+**/__pycache__/
+**/*.pyc
+
+# Banco de dados local
+backend/database.db
+
+# Virtualenvs
+venv/
+.venv/
