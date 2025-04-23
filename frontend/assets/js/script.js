@@ -48,7 +48,7 @@ function fazerLogin() {
       // extrai cargo do token garantido pelo backend
       const payload = parseJwt(data.token);
       localStorage.setItem('token',      data.token);
-      localStorage.setItem('username',   payload.sub);             // 'sub' = identity
+      localStorage.setItem('username',   payload.sub);               // 'sub' = identity
       localStorage.setItem('cargo',      payload.cargo.toLowerCase()); // 'admin'|...
       localStorage.setItem('ultimoLogin', new Date().toLocaleString());
       showSuccess('Login realizado! Redirecionando...');
@@ -70,11 +70,11 @@ if (document.getElementById('conteudo')) {
     const cargo     = localStorage.getItem('cargo');
     const lastLogin = localStorage.getItem('ultimoLogin');
 
-    // Top‑bar
+    // Top-bar
     document.getElementById('usuario-logado').innerText = `Usuário: ${username}`;
 
     // Preenche Dashboard
-    document.getElementById('welcome-msg').innerText = `Bem‑vindo, ${username}!`;
+    document.getElementById('welcome-msg').innerText = `Bem-vindo, ${username}!`;
     document.getElementById('cargo-info').innerText   = `Cargo: ${cargo}`;
     document.getElementById('last-login').innerText  = `Último login: ${lastLogin}`;
 
@@ -83,25 +83,27 @@ if (document.getElementById('conteudo')) {
       headers: { 'Authorization': 'Bearer ' + token }
     }).catch(() => {});
 
-    // estatísticas usuáros (só admin vê)
-    if (cargo === 'admin') {
-      fetch(`${API_BASE}/api/usuarios`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      })
-      .then(res => res.json())
-      .then(usuarios => {
-        let adm=0, ger=0, func=0;
-        usuarios.forEach(u => {
-          const c = u.cargo.toLowerCase();
-          if (c==='admin')      adm++;
-          else if (c==='gerente') ger++;
-          else                    func++;
-        });
-        document.getElementById('stats-admin').innerText       = adm;
-        document.getElementById('stats-gerente').innerText     = ger;
-        document.getElementById('stats-funcionario').innerText = func;
-      });
-    }
+    // Estatísticas de Usuários (TODOS VEEM)
+fetch(`${API_BASE}/api/usuarios`, {
+  headers: { 'Authorization': 'Bearer ' + token }
+})
+  .then(res => res.json())
+  .then(usuarios => {
+    let adm=0, ger=0, func=0;
+    usuarios.forEach(u => {
+      const c = u.cargo.toLowerCase();
+      if (c==='admin')       adm++;
+      else if (c==='gerente') ger++;
+      else                    func++;
+    });
+    document.getElementById('stats-admin').innerText       = adm;
+    document.getElementById('stats-gerente').innerText     = ger;
+    document.getElementById('stats-funcionario').innerText = func;
+})
+.catch(() => {
+  // opcional: esconder ou mostrar erro
+});
+
 
     // resumo recursos
     atualizarResumoRecursos();
@@ -204,13 +206,13 @@ function initAdminUI() {
     btnAdmin.style.display = 'inline-block';
   }
 
-  // injetar botões só em admin.html e se for admin
+  // Injetar botões só em admin.html e se for admin
   const path = window.location.pathname;
   if (path.endsWith('admin.html') && cargo === 'admin') {
     carregarRecursos();
     carregarRecursosComBotoes();
   } else if (document.getElementById('lista-recursos')) {
-    // em recursos.html para não-admin
+    // Em recursos.html para não-admin
     carregarRecursos();
   }
 }
