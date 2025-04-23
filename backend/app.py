@@ -122,8 +122,6 @@ def listar_usuarios():
         for u in Usuario.query.all()
     ]), 200
 
-
-
 @app.route('/api/recursos', methods=['GET'])
 @jwt_required()
 def get_recursos():
@@ -164,4 +162,5 @@ def delete_recurso(id):
     return jsonify(msg="Recurso deletado!"), 200
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
