@@ -32,9 +32,18 @@ app.config['JWT_SECRET_KEY']                 = 'troque-para-uma-chave-secreta'
 db.init_app(app)
 jwt = JWTManager(app)
 
-# Garante criação das tabelas
+# Garante criação das tabelas e inicializa com um usuário padrão
 with app.app_context():
     db.create_all()
+    # Verifica se já existe um usuário admin; se não, cria um
+    if not Usuario.query.filter_by(username='admin').first():
+        admin = Usuario(
+            username='admin',
+            password=generate_password_hash('admin123'),
+            cargo='admin'
+        )
+        db.session.add(admin)
+        db.session.commit()
 
 CARGO_MAP = {
     "funcionario":                 "funcionario",
