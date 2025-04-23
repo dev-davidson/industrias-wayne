@@ -8,13 +8,13 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-# **import relativo** dentro do mesmo pacote
-from .models import db, Usuario, Recurso
+# import relativo dentro do mesmo pacote
+from models import db, Usuario, Recurso
 
 # configurações de caminho
-HERE           = os.path.abspath(os.path.dirname(__file__))
-FRONTEND_DIR   = os.path.join(HERE, '..', 'frontend')
-FRONTEND_ASSETS= os.path.join(FRONTEND_DIR, 'assets')
+HERE            = os.path.abspath(os.path.dirname(__file__))
+FRONTEND_DIR    = os.path.join(HERE, '..', 'frontend')
+FRONTEND_ASSETS = os.path.join(FRONTEND_DIR, 'assets')
 
 app = Flask(
     __name__,
@@ -37,12 +37,12 @@ with app.app_context():
     db.create_all()
 
 CARGO_MAP = {
-    "funcionario":                   "funcionario",
-    "funcionário":                   "funcionario",
-    "gerente":                       "gerente",
-    "administrador":                 "admin",
-    "administrador de segurança":    "admin",
-    "admin":                         "admin"
+    "funcionario":                 "funcionario",
+    "funcionário":                 "funcionario",
+    "gerente":                     "gerente",
+    "administrador":               "admin",
+    "administrador de segurança":  "admin",
+    "admin":                       "admin"
 }
 
 # — Serve o frontend estático —
@@ -58,7 +58,7 @@ def role_required(allowed):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            cargo = get_jwt().get("cargo","").lower()
+            cargo = get_jwt().get("cargo", "").lower()
             lst = [allowed] if isinstance(allowed, str) else allowed
             lst = [c.lower() for c in lst]
             if cargo not in lst:
@@ -77,7 +77,7 @@ def cadastro():
     if Usuario.query.filter_by(username=data['username']).first():
         return jsonify(msg="Username já existe."), 400
 
-    cargo_raw  = data.get('cargo','funcionario').strip().lower()
+    cargo_raw  = data.get('cargo', 'funcionario').strip().lower()
     cargo_norm = CARGO_MAP.get(cargo_raw, 'funcionario')
 
     novo = Usuario(
@@ -96,7 +96,7 @@ def login():
     if not user or not check_password_hash(user.password, data.get('password')):
         return jsonify(msg="Usuário ou senha inválidos"), 401
 
-    cargo_inf = data.get('cargo','').strip().lower()
+    cargo_inf = data.get('cargo', '').strip().lower()
     if CARGO_MAP.get(cargo_inf) != CARGO_MAP.get(user.cargo.strip().lower()):
         return jsonify(msg="Cargo incorreto."), 403
 
@@ -108,20 +108,21 @@ def login():
 
 @app.route('/api/dashboard', methods=['GET'])
 @jwt_required()
-@role_required(["admin","gerente","funcionario"])
+@role_required(["admin", "gerente", "funcionario"])
 def dashboard():
     user  = get_jwt_identity()
-    cargo = get_jwt().get("cargo","")
-    return jsonify(msg=f"Bem‑vindo {user} ({cargo})!"), 200
+    cargo = get_jwt().get("cargo", "")
+    return jsonify(msg=f"Bem-vindo {user} ({cargo})!"), 200
 
 @app.route('/api/usuarios', methods=['GET'])
-@jwt_required()
-@role_required("admin")  # apenas admin
+@jwt_required()  # qualquer usuário logado
 def listar_usuarios():
     return jsonify([
         {"id":u.id,"username":u.username,"cargo":u.cargo}
         for u in Usuario.query.all()
     ]), 200
+
+
 
 @app.route('/api/recursos', methods=['GET'])
 @jwt_required()
