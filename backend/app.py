@@ -8,13 +8,13 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-# import relativo dentro do mesmo pacote
+# Import relativo dentro do mesmo pacote
 from models import db, Usuario, Recurso
 
-# configurações de caminho
+# Configurações de caminho
 HERE            = os.path.abspath(os.path.dirname(__file__))
 FRONTEND_DIR    = os.path.join(HERE, '..', 'frontend')
-FRONTEND_ASSETS = os.path.join(FRONTEND_DIR, 'assets')
+FRONTEND_ASSETS = os.path.join(HERE, '..', 'frontend', 'assets')
 
 # Adiciona logs para depuração
 print(f"Diretório atual (HERE): {HERE}")
@@ -29,8 +29,8 @@ app = Flask(
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Configurações de banco e JWT
-# Usa DATABASE_URL do Heroku (PostgreSQL) ou SQLite como fallback para testes locais
-database_url = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(HERE, 'database.db'))
+# Usa DATABASE_URL do Render (PostgreSQL) ou SQLite como fallback para testes locais
+database_url = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(HERE, 'recursos.db'))
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
