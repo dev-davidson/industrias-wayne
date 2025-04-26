@@ -16,6 +16,11 @@ HERE            = os.path.abspath(os.path.dirname(__file__))
 FRONTEND_DIR    = os.path.join(HERE, '..', 'frontend')
 FRONTEND_ASSETS = os.path.join(FRONTEND_DIR, 'assets')
 
+# Adiciona logs para depuração
+print(f"Diretório atual (HERE): {HERE}")
+print(f"Diretório do frontend (FRONTEND_DIR): {FRONTEND_DIR}")
+print(f"Diretório dos assets (FRONTEND_ASSETS): {FRONTEND_ASSETS}")
+
 app = Flask(
     __name__,
     static_folder=FRONTEND_ASSETS,
@@ -24,9 +29,13 @@ app = Flask(
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Configurações de banco e JWT
-app.config['SQLALCHEMY_DATABASE_URI']        = 'sqlite:///' + os.path.join(HERE, 'database.db')
+# Usa DATABASE_URL do Heroku (PostgreSQL) ou SQLite como fallback para testes locais
+database_url = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(HERE, 'database.db'))
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY']                 = 'troque-para-uma-chave-secreta'
+app.config['JWT_SECRET_KEY'] = 'troque-para-uma-chave-secreta'
 
 # Inicializa extensões
 db.init_app(app)
@@ -34,16 +43,24 @@ jwt = JWTManager(app)
 
 # Garante criação das tabelas e inicializa com um usuário padrão
 with app.app_context():
-    db.create_all()
-    # Verifica se já existe um usuário admin; se não, cria um
-    if not Usuario.query.filter_by(username='admin').first():
-        admin = Usuario(
-            username='admin',
-            password=generate_password_hash('admin123'),
-            cargo='admin'
-        )
-        db.session.add(admin)
-        db.session.commit()
+    try:
+        print(f"Tentando criar banco de dados em: {app.config['SQLALCHEMY_DATABASE_URI']}")
+        db.create_all()
+        # Verifica se já existe um usuário admin; se não, cria um
+        if not Usuario.query.filter_by(username='admin').first():
+            admin = Usuario(
+                username='admin',
+                password=generate_password_hash('admin123'),
+                cargo='admin'
+            )
+            db.session.add(admin)
+            db.session.commit()
+            print("Usuário admin criado com sucesso.")
+        else:
+            print("Usuário admin já existe.")
+    except Exception as e:
+        print(f"Erro ao inicializar o banco de dados: {e}")
+        raise
 
 CARGO_MAP = {
     "funcionario":                 "funcionario",
@@ -54,10 +71,16 @@ CARGO_MAP = {
     "admin":                       "admin"
 }
 
+# — Rota de Saúde (Health Check) —
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "Backend is running"}), 200
+
 # — Serve o frontend estático —
 @app.route('/', defaults={'path': 'index.html'})
 @app.route('/<path:path>')
 def serve_front(path):
+    print(f"Servindo arquivo: {path}")
     if path.startswith('assets/'):
         return send_from_directory(app.static_folder, path[len('assets/'):])
     return send_from_directory(app.template_folder, path)
@@ -101,6 +124,7 @@ def cadastro():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json or {}
+    print(f"Recebendo requisição de login: {data}")
     user = Usuario.query.filter_by(username=data.get('username')).first()
     if not user or not check_password_hash(user.password, data.get('password')):
         return jsonify(msg="Usuário ou senha inválidos"), 401
@@ -113,6 +137,7 @@ def login():
         identity=user.username,
         additional_claims={"cargo": user.cargo}
     )
+    print(f"Token gerado: {token}")
     return jsonify(token=token), 200
 
 @app.route('/api/dashboard', methods=['GET'])
@@ -172,4 +197,5 @@ def delete_recurso(id):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
+    print(f"Iniciando o servidor na porta {port}")
     app.run(host="0.0.0.0", port=port, debug=True)
