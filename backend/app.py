@@ -41,7 +41,7 @@ app.config['JWT_SECRET_KEY'] = 'troque-para-uma-chave-secreta'
 db.init_app(app)
 jwt = JWTManager(app)
 
-# Garante criação das tabelas e inicializa com um usuário padrão
+# Garante criação das tabelas e inicializa com usuários padrão
 with app.app_context():
     try:
         print(f"Tentando criar banco de dados em: {app.config['SQLALCHEMY_DATABASE_URI']}")
@@ -50,7 +50,7 @@ with app.app_context():
         if not Usuario.query.filter_by(username='admin').first():
             admin = Usuario(
                 username='admin',
-                password=generate_password_hash('admin123', method='pbkdf2:sha256'),  # Alterado para pbkdf2:sha256
+                password=generate_password_hash('admin123', method='pbkdf2:sha256'),
                 cargo='admin'
             )
             db.session.add(admin)
@@ -58,6 +58,45 @@ with app.app_context():
             print("Usuário admin criado com sucesso.")
         else:
             print("Usuário admin já existe.")
+
+        # Verifica se já existe um usuário Bruce; se não, cria um
+        if not Usuario.query.filter_by(username='Bruce').first():
+            bruce = Usuario(
+                username='Bruce',
+                password=generate_password_hash('admin123', method='pbkdf2:sha256'),
+                cargo='admin'  # Administrador de Segurança é mapeado para 'admin' no CARGO_MAP
+            )
+            db.session.add(bruce)
+            db.session.commit()
+            print("Usuário Bruce criado com sucesso.")
+        else:
+            print("Usuário Bruce já existe.")
+
+        # Verifica se já existe um usuário Robin; se não, cria um
+        if not Usuario.query.filter_by(username='Robin').first():
+            robin = Usuario(
+                username='Robin',
+                password=generate_password_hash('robin123', method='pbkdf2:sha256'),
+                cargo='gerente'  # Cargo Gerente é mapeado para 'gerente' no CARGO_MAP
+            )
+            db.session.add(robin)
+            db.session.commit()
+            print("Usuário Robin criado com sucesso.")
+        else:
+            print("Usuário Robin já existe.")
+
+        # Verifica se já existe um usuário Alfred; se não, cria um
+        if not Usuario.query.filter_by(username='Alfred').first():
+            alfred = Usuario(
+                username='Alfred',
+                password=generate_password_hash('alfred123', method='pbkdf2:sha256'),
+                cargo='funcionario'  # Cargo funcionário é mapeado para 'funcionario' no CARGO_MAP
+            )
+            db.session.add(alfred)
+            db.session.commit()
+            print("Usuário Alfred criado com sucesso.")
+        else:
+            print("Usuário Alfred já existe.")
     except Exception as e:
         print(f"Erro ao inicializar o banco de dados: {e}")
         raise
@@ -114,7 +153,7 @@ def cadastro():
 
     novo = Usuario(
         username=data['username'],
-        password=generate_password_hash(data['password'], method='pbkdf2:sha256'),  # Alterado para pbkdf2:sha256
+        password=generate_password_hash(data['password'], method='pbkdf2:sha256'),
         cargo=cargo_norm
     )
     db.session.add(novo)
