@@ -50,7 +50,7 @@ with app.app_context():
         if not Usuario.query.filter_by(username='admin').first():
             admin = Usuario(
                 username='admin',
-                password=generate_password_hash('admin123'),
+                password=generate_password_hash('admin123', method='pbkdf2:sha256'),  # Alterado para pbkdf2:sha256
                 cargo='admin'
             )
             db.session.add(admin)
@@ -114,7 +114,7 @@ def cadastro():
 
     novo = Usuario(
         username=data['username'],
-        password=generate_password_hash(data['password']),
+        password=generate_password_hash(data['password'], method='pbkdf2:sha256'),  # Alterado para pbkdf2:sha256
         cargo=cargo_norm
     )
     db.session.add(novo)
